@@ -1,0 +1,237 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum Priority {
+  MUST_HAVE
+  NORMAL
+  DREAM
+}
+
+enum ItemStatus {
+  AVAILABLE
+  RESERVED
+  COLLECTING
+  COLLECTED
+}
+
+enum UserRole {
+  USER
+  ORG
+}
+
+enum WishlistVisibility {
+  PRIVATE
+  FRIENDS
+  PUBLIC
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+enum CoinTxType {
+  SIGNUP_BONUS
+  SENT
+  RECEIVED
+  DONATED
+  REFUNDED
+}
+
+enum GroupRole {
+  ADMIN
+  MEMBER
+}
+
+// ─── Models ───────────────────────────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  role         UserRole @default(USER)
+  coinBalance  Int      @default(0)
+  bio          String?
+  avatarUrl    String?
+  createdAt    DateTime @default(now())
+
+  wishlists        Wishlist[]
+  sentRequests     Friendship[]     @relation("FriendshipSender")
+  receivedRequests Friendship[]     @relation("FriendshipReceiver")
+  coinTransactions CoinTransaction[] @relation("TxOwner")
+  coinDonations    CoinDonation[]   @relation("DonorDonations")
+  groupsCreated    Group[]          @relation("GroupCreator")
+  groupMemberships GroupMembership[]
+  groupDonations   GroupDonation[]  @relation("GroupDonor")
+}
+
+model Wishlist {
+  id           String             @id @default(cuid())
+  title        String
+  description  String?
+  occasion     String?
+  occasionDate DateTime?
+  shareToken   String             @unique
+  visibility   WishlistVisibility @default(PRIVATE)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  ownerId      String
+  owner        User               @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  items        Item[]
+
+  @@index([visibility])
+  @@index([ownerId])
+}
+
+model Item {
+  id            String         @id @default(cuid())
+  title         String
+  description   String?
+  price         Decimal?       @db.Decimal(10, 2)
+  url           String?
+  imageUrl      String?
+  priority      Priority       @default(NORMAL)
+  status        ItemStatus     @default(AVAILABLE)
+  isGroupGift   Boolean        @default(false)
+  targetAmount  Decimal?       @db.Decimal(10, 2)
+  coinTarget    Int?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  wishlistId    String
+  wishlist      Wishlist       @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
+  reservation   Reservation?
+  contributions Contribution[]
+  coinDonations CoinDonation[]
+}
+
+model Reservation {
+  id         String   @id @default(cuid())
+  guestName  String
+  guestEmail String?
+  createdAt  DateTime @default(now())
+  itemId     String   @unique
+  item       Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+}
+
+model Contribution {
+  id         String   @id @default(cuid())
+  amount     Decimal  @db.Decimal(10, 2)
+  guestName  String
+  guestEmail String?
+  createdAt  DateTime @default(now())
+  itemId     String
+  item       Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+}
+
+model Friendship {
+  id         String           @id @default(cuid())
+  senderId   String
+  receiverId String
+  status     FriendshipStatus @default(PENDING)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  sender   User @relation("FriendshipSender",   fields: [senderId],   references: [id], onDelete: Cascade)
+  receiver User @relation("FriendshipReceiver",  fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, receiverId])
+  @@index([receiverId])
+  @@index([senderId])
+}
+
+model CoinTransaction {
+  id            String     @id @default(cuid())
+  ownerId       String
+  amount        Int
+  type          CoinTxType
+  description   String?
+  relatedUserId String?
+  createdAt     DateTime   @default(now())
+
+  owner User @relation("TxOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@index([ownerId, createdAt(sort: Desc)])
+}
+
+model CoinDonation {
+  id        String   @id @default(cuid())
+  amount    Int
+  donorId   String
+  itemId    String
+  createdAt DateTime @default(now())
+
+  donor User @relation("DonorDonations", fields: [donorId], references: [id], onDelete: Cascade)
+  item  Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@index([itemId])
+  @@index([donorId])
+}
+
+model Group {
+  id          String            @id @default(cuid())
+  name        String
+  description String?
+  joinCode    String            @unique
+  createdAt   DateTime          @default(now())
+  creatorId   String
+
+  creator     User              @relation("GroupCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  memberships GroupMembership[]
+  items       GroupItem[]
+
+  @@index([creatorId])
+}
+
+model GroupMembership {
+  id       String   @id @default(cuid())
+  userId   String
+  groupId  String
+  isAdmin  Boolean  @default(false)
+  joinedAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, groupId])
+  @@index([groupId])
+  @@index([userId])
+}
+
+model GroupItem {
+  id          String          @id @default(cuid())
+  title       String
+  description String?
+  imageUrl    String?
+  coinTarget  Int?
+  createdAt   DateTime        @default(now())
+  groupId     String
+
+  group     Group          @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  donations GroupDonation[]
+
+  @@index([groupId])
+}
+
+model GroupDonation {
+  id        String    @id @default(cuid())
+  amount    Int
+  donorId   String
+  itemId    String
+  createdAt DateTime  @default(now())
+
+  donor User      @relation("GroupDonor", fields: [donorId], references: [id], onDelete: Cascade)
+  item  GroupItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@index([itemId])
+  @@index([donorId])
+}

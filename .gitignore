@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+.yarn/
+
+# Environment secrets
+.env
+backend/.env
+WishlistApp/.env
+
+# Build outputs
+backend/dist/
+WishlistApp/.expo/
+
+# iOS
+WishlistApp/ios/build/
+WishlistApp/ios/Pods/
+WishlistApp/ios/*.xcworkspace/xcuserdata/
+WishlistApp/ios/*.xcodeproj/xcuserdata/
+*.ipa
+
+# Android
+WishlistApp/android/build/
+WishlistApp/android/app/build/
+*.apk
+*.aab
+
+# React Native cache
+WishlistApp/.metro-health-check*
+WishlistApp/__generated__/
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+
+# Prisma
+backend/prisma/*.db
