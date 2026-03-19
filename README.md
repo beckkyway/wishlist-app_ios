@@ -1,291 +1,289 @@
 # Wishlist App — iOS
 
-A full-stack mobile application for creating and sharing gift wishlists with social features, collective gifting, and an in-app coin economy.
+Мобильное приложение для создания и совместного использования списков желаний с социальными функциями, коллективными подарками и внутренней монетной экономикой.
 
-**Stack:** React Native (iOS) + Express.js + PostgreSQL
-
----
-
-## What the App Does
-
-Wishlist App lets users:
-
-- Create wishlists with items (title, price, link, priority, image)
-- Share wishlists publicly or with friends via a deep link
-- Allow guests to **reserve** items or **contribute money** toward them
-- Donate **coins** (in-app currency) to help friends buy items
-- Form **groups** for collective gift purchases
-- Follow friends and view their activity in a **social feed**
-- Get **AI-powered gift suggestions** based on context
+**Стек:** React Native (iOS) + Express.js + PostgreSQL
 
 ---
 
-## Project Structure
+## Что делает приложение
+
+- Создавать списки желаний с товарами (название, цена, ссылка, приоритет, фото)
+- Делиться списками публично или с друзьями через deep link
+- Гостям — **резервировать** товары или **вносить деньги** без регистрации
+- Дарить **монеты** (внутренняя валюта) друзьям на исполнение желаний
+- Создавать **группы** для коллективных подарков
+- Следить за активностью друзей через **ленту событий**
+- Получать **AI-подсказки** по выбору подарков
+
+---
+
+## Структура проекта
 
 ```
 mobile/
 ├── README.md
-├── SETUP.md                  # Developer setup guide (RU)
-├── WishlistApp/              # React Native iOS frontend
-├── backend/                  # Express.js API server
-└── wishlist/                 # Legacy Swift project (archived)
+├── SETUP.md                  # Руководство по настройке для разработчика
+├── WishlistApp/              # React Native фронтенд (iOS)
+├── backend/                  # Express.js API сервер
+└── wishlist/                 # Архивный Swift-проект (не используется)
 ```
 
 ---
 
-## Frontend — `WishlistApp/`
+## Фронтенд — `WishlistApp/`
 
-React Native app targeting iOS, written in TypeScript.
+React Native приложение для iOS, написано на TypeScript.
 
-### Architecture
+### Архитектура
 
 ```
 WishlistApp/
-├── App.tsx                   # App entry — providers (React Query, Toast, Navigation)
+├── App.tsx                   # Точка входа — провайдеры (React Query, Toast, Navigation)
 ├── src/
-│   ├── types/index.ts        # Shared TypeScript types
-│   ├── navigation/           # Navigator stack
-│   ├── screens/              # Full-screen views
-│   ├── components/           # Reusable UI components
-│   ├── hooks/                # Custom React hooks (data fetching)
-│   ├── api/                  # Axios API call functions
-│   └── store/                # Zustand global state
+│   ├── types/index.ts        # Общие TypeScript-типы
+│   ├── navigation/           # Стек навигации
+│   ├── screens/              # Полноэкранные представления
+│   ├── components/           # Переиспользуемые UI-компоненты
+│   ├── hooks/                # Кастомные хуки (загрузка данных)
+│   ├── api/                  # Функции API-запросов через Axios
+│   └── store/                # Глобальное состояние (Zustand)
 ```
 
-### Navigation
+### Навигация
 
-| File | Purpose |
+| Файл | Назначение |
 |---|---|
-| `navigation/RootNavigator.tsx` | Auth/app switching, deep link handling |
-| `navigation/AuthNavigator.tsx` | Login & Register stack |
-| `navigation/AppNavigator.tsx` | Main tab bar (My Lists, Feed, Friends, Wallet) |
+| `navigation/RootNavigator.tsx` | Переключение auth/app, обработка deep link |
+| `navigation/AuthNavigator.tsx` | Стек входа и регистрации |
+| `navigation/AppNavigator.tsx` | Главный таб-бар (Мои списки, Лента, Друзья, Кошелёк) |
 
-### Screens
+### Экраны
 
-| Screen | Path | Description |
+| Экран | Файл | Описание |
 |---|---|---|
-| Login | `screens/auth/LoginScreen.tsx` | Email/password login |
-| Register | `screens/auth/RegisterScreen.tsx` | New account creation |
-| Dashboard | `screens/dashboard/DashboardScreen.tsx` | User's wishlists list + FAB to create |
-| Wishlist Detail | `screens/wishlist/WishlistDetailScreen.tsx` | Items in a wishlist, add/edit/delete |
-| Public Wishlist | `screens/wishlist/PublicWishlistScreen.tsx` | Read-only view for PUBLIC wishlists |
-| Guest Access | `screens/guest/GuestAccessScreen.tsx` | Deep-link landing page for guests |
-| Friends | `screens/friends/FriendsScreen.tsx` | Friend requests and friends list |
-| Friend Profile | `screens/friends/FriendProfileScreen.tsx` | View a friend's public profile |
-| Feed | `screens/feed/FeedScreen.tsx` | Social feed of friends' recent items |
-| Wallet | `screens/wallet/WalletScreen.tsx` | Coin balance and transaction history |
-| Groups | `screens/groups/GroupsScreen.tsx` | Create and join groups |
-| Group Detail | `screens/groups/GroupDetailScreen.tsx` | Group gift items and coin contributions |
+| Вход | `screens/auth/LoginScreen.tsx` | Авторизация по email/паролю |
+| Регистрация | `screens/auth/RegisterScreen.tsx` | Создание нового аккаунта |
+| Дашборд | `screens/dashboard/DashboardScreen.tsx` | Список вишлистов пользователя + FAB для создания |
+| Детали вишлиста | `screens/wishlist/WishlistDetailScreen.tsx` | Товары в вишлисте, добавление/редактирование/удаление |
+| Публичный вишлист | `screens/wishlist/PublicWishlistScreen.tsx` | Только чтение для PUBLIC-вишлистов |
+| Гостевой доступ | `screens/guest/GuestAccessScreen.tsx` | Страница для гостей по deep link |
+| Друзья | `screens/friends/FriendsScreen.tsx` | Заявки в друзья и список друзей |
+| Профиль друга | `screens/friends/FriendProfileScreen.tsx` | Просмотр публичного профиля друга |
+| Лента | `screens/feed/FeedScreen.tsx` | Активность друзей (новые товары) |
+| Кошелёк | `screens/wallet/WalletScreen.tsx` | Баланс монет и история транзакций |
+| Группы | `screens/groups/GroupsScreen.tsx` | Создание и вступление в группы |
+| Детали группы | `screens/groups/GroupDetailScreen.tsx` | Товары группы и донаты монетами |
 
-### Components
+### Компоненты
 
-**Common**
-- `Button.tsx` — styled button
-- `Input.tsx` — text input with label
-- `LoadingOverlay.tsx` — full-screen loader
-- `ErrorBanner.tsx` — inline error display
-- `PriorityBadge.tsx` — MUST_HAVE / NORMAL / DREAM badge
+**Общие**
+- `Button.tsx` — стилизованная кнопка
+- `Input.tsx` — текстовое поле с меткой
+- `LoadingOverlay.tsx` — полноэкранный загрузчик
+- `ErrorBanner.tsx` — встроенное отображение ошибки
+- `PriorityBadge.tsx` — бейдж MUST_HAVE / NORMAL / DREAM
 
-**Wishlist**
-- `WishlistCard.tsx` — list row for a wishlist
-- `WishlistItemCard.tsx` — list row for an item
-- `ItemFormModal.tsx` — create/edit item modal
-- `GiftAdvisorModal.tsx` — AI gift suggestion modal
+**Вишлист**
+- `WishlistCard.tsx` — строка вишлиста в списке
+- `WishlistItemCard.tsx` — строка товара в списке
+- `ItemFormModal.tsx` — модалка создания/редактирования товара
+- `GiftAdvisorModal.tsx` — модалка AI-подсказок по подаркам
 
-**Guest**
-- `GuestItemCard.tsx` — read-only item card for guests
-- `ContributionBar.tsx` — progress bar for monetary contributions
+**Гостевые**
+- `GuestItemCard.tsx` — карточка товара только для чтения (гость)
+- `ContributionBar.tsx` — прогресс-бар денежных вкладов
 
-### State Management
+### Управление состоянием
 
-| Layer | Library | Used For |
+| Слой | Библиотека | Для чего |
 |---|---|---|
-| Server state | React Query | All API data, caching, invalidation |
-| Client state | Zustand | Auth token + current user (persisted) |
-| HTTP | Axios | API requests with JWT interceptor |
+| Серверное состояние | React Query | Все API-данные, кэширование, инвалидация |
+| Клиентское состояние | Zustand | Токен авторизации + текущий пользователь (с персистентностью) |
+| HTTP | Axios | Запросы с JWT-интерцептором |
 
-### Custom Hooks
+### Кастомные хуки
 
-Each feature has a dedicated hook wrapping React Query calls:
+Каждая функция приложения имеет отдельный хук, обёртывающий вызовы React Query:
 
-| Hook | Responsibility |
+| Хук | Ответственность |
 |---|---|
-| `useAuth` | Login/register mutations |
-| `useWishlists` | List, create, update, delete wishlists |
-| `useWishlistDetail` | Single wishlist + its items |
-| `useFriends` | Friend requests, accept/decline, list |
-| `useFeed` | Friends' activity feed |
-| `useWallet` | Coin balance + transaction history |
-| `useCoinDonations` | Donate coins to items |
-| `useGroups` | Group CRUD and join by code |
-| `useShareData` | Parse guest share token from deep link |
+| `useAuth` | Мутации входа/регистрации |
+| `useWishlists` | Список, создание, обновление, удаление вишлистов |
+| `useWishlistDetail` | Один вишлист и его товары |
+| `useFriends` | Заявки в друзья, принять/отклонить, список |
+| `useFeed` | Лента активности друзей |
+| `useWallet` | Баланс монет и история транзакций |
+| `useCoinDonations` | Донат монет на товары |
+| `useGroups` | CRUD групп и вступление по коду |
+| `useShareData` | Парсинг токена гостя из deep link |
 
-### API Layer
+### API-слой
 
-`src/api/client.ts` — Axios instance pointing to `http://localhost:3000`. Adds `Authorization: Bearer <token>` header automatically; logs out on 401.
+`src/api/client.ts` — Axios-инстанс, указывающий на `http://localhost:3000`. Автоматически добавляет заголовок `Authorization: Bearer <token>`; делает выход при 401.
 
-Each module exports typed functions for one resource:
+Каждый модуль экспортирует типизированные функции для одного ресурса:
 `auth.api.ts`, `wishlists.api.ts`, `items.api.ts`, `reservations.api.ts`, `contributions.api.ts`, `share.api.ts`, `friends.api.ts`, `wallet.api.ts`, `feed.api.ts`, `coinDonations.api.ts`, `groups.api.ts`, `ai.api.ts`
 
-### Key Dependencies
+### Основные зависимости
 
-| Package | Version | Purpose |
+| Пакет | Версия | Назначение |
 |---|---|---|
-| react-native | 0.84.1 | Mobile framework |
-| @react-navigation/* | 7.x | Navigation |
-| @tanstack/react-query | 5.90 | Server state |
-| zustand | 4.5.7 | Client state |
-| axios | 1.13.6 | HTTP client |
-| phosphor-react-native | — | Icons |
-| react-native-toast-message | — | Toast notifications |
+| react-native | 0.84.1 | Мобильный фреймворк |
+| @react-navigation/* | 7.x | Навигация |
+| @tanstack/react-query | 5.90 | Серверное состояние |
+| zustand | 4.5.7 | Клиентское состояние |
+| axios | 1.13.6 | HTTP-клиент |
+| phosphor-react-native | — | Иконки |
+| react-native-toast-message | — | Toast-уведомления |
 
 ---
 
-## Backend — `backend/`
+## Бэкенд — `backend/`
 
-Express.js REST API written in TypeScript, backed by PostgreSQL via Prisma ORM.
+REST API на Express.js, написан на TypeScript, база данных PostgreSQL через Prisma ORM.
 
-### Architecture
+### Архитектура
 
 ```
 backend/
 ├── src/
-│   ├── index.ts              # Express app + route mounting
-│   ├── config.ts             # Environment variable loading
-│   ├── db.ts                 # Prisma client singleton
+│   ├── index.ts              # Express-приложение + подключение маршрутов
+│   ├── config.ts             # Загрузка переменных окружения
+│   ├── db.ts                 # Singleton Prisma-клиента
 │   ├── middleware/
-│   │   ├── auth.ts           # JWT requireAuth middleware
-│   │   └── errorHandler.ts   # Global error handler
-│   ├── routes/               # Route definitions (13 modules)
-│   ├── controllers/          # Request handlers
-│   ├── services/             # Business logic
-│   └── utils/                # jwt, hash, shareToken helpers
+│   │   ├── auth.ts           # JWT-мидлвар requireAuth
+│   │   └── errorHandler.ts   # Глобальный обработчик ошибок
+│   ├── routes/               # Определения маршрутов (13 модулей)
+│   ├── controllers/          # Обработчики запросов
+│   ├── services/             # Бизнес-логика
+│   └── utils/                # Вспомогательные функции (jwt, hash, shareToken)
 └── prisma/
-    ├── schema.prisma         # Database schema
-    └── migrations/           # Migration history
+    ├── schema.prisma         # Схема базы данных
+    └── migrations/           # История миграций
 ```
 
-### API Routes
+### API-маршруты
 
-| Prefix | File | Description |
+| Префикс | Файл | Описание |
 |---|---|---|
-| `/auth` | `routes/auth.ts` | Register, login, get current user |
-| `/wishlists` | `routes/wishlists.ts` | Wishlist CRUD |
-| `/items` | `routes/items.ts` | Wishlist item CRUD |
-| `/reservations` | `routes/reservations.ts` | Guest item reservations |
-| `/contributions` | `routes/contributions.ts` | Guest monetary contributions |
-| `/share` | `routes/share.ts` | Public guest access via share token |
-| `/parse-url` | `routes/parseUrl.ts` | Scrape metadata from a URL |
-| `/ai` | `routes/ai.ts` | AI gift suggestions (OpenRouter) |
-| `/friends` | `routes/friends.ts` | Friend requests and management |
-| `/wallet` | `routes/wallet.ts` | Coin balance and transactions |
-| `/feed` | `routes/feed.ts` | Friends' activity feed |
-| `/coin-donations` | `routes/coinDonations.ts` | Coin donations to items |
-| `/groups` | `routes/groups.ts` | Group CRUD, join, donate |
+| `/auth` | `routes/auth.ts` | Регистрация, вход, получение текущего пользователя |
+| `/wishlists` | `routes/wishlists.ts` | CRUD вишлистов |
+| `/items` | `routes/items.ts` | CRUD товаров вишлиста |
+| `/reservations` | `routes/reservations.ts` | Резервирование товаров гостем |
+| `/contributions` | `routes/contributions.ts` | Денежные вклады гостей |
+| `/share` | `routes/share.ts` | Публичный гостевой доступ по токену |
+| `/parse-url` | `routes/parseUrl.ts` | Извлечение метаданных из URL |
+| `/ai` | `routes/ai.ts` | AI-подсказки по подаркам (OpenRouter) |
+| `/friends` | `routes/friends.ts` | Заявки в друзья и управление дружбой |
+| `/wallet` | `routes/wallet.ts` | Баланс монет и транзакции |
+| `/feed` | `routes/feed.ts` | Лента активности друзей |
+| `/coin-donations` | `routes/coinDonations.ts` | Донаты монет на товары |
+| `/groups` | `routes/groups.ts` | CRUD групп, вступление, донаты |
 
-### Database Schema
+### Схема базы данных
 
-Key models in `prisma/schema.prisma`:
+Основные модели в `prisma/schema.prisma`:
 
-| Model | Fields | Notes |
+| Модель | Поля | Примечание |
 |---|---|---|
-| `User` | email, passwordHash, coins, role, avatar | Roles: USER, ORG |
+| `User` | email, passwordHash, coins, role, avatar | Роли: USER, ORG |
 | `Wishlist` | title, description, occasion, visibility | PRIVATE / FRIENDS / PUBLIC |
-| `Item` | title, price, url, imageUrl, priority, status | Priority: MUST_HAVE / NORMAL / DREAM |
-| `Reservation` | itemId, guestName, guestEmail | One guest claims an item |
-| `Contribution` | itemId, amount, guestName | Partial monetary contribution |
+| `Item` | title, price, url, imageUrl, priority, status | Приоритет: MUST_HAVE / NORMAL / DREAM |
+| `Reservation` | itemId, guestName, guestEmail | Гость резервирует товар |
+| `Contribution` | itemId, amount, guestName | Частичный денежный вклад |
 | `Friendship` | requesterId, addresseeId, status | PENDING / ACCEPTED / DECLINED |
 | `CoinTransaction` | userId, amount, type | SIGNUP_BONUS / SENT / RECEIVED / DONATED / REFUNDED |
-| `CoinDonation` | fromUserId, itemId, amount | User-to-item coin donation |
-| `Group` | title, joinCode, creatorId | Collective gift group |
+| `CoinDonation` | fromUserId, itemId, amount | Донат монет от пользователя к товару |
+| `Group` | title, joinCode, creatorId | Группа для коллективного подарка |
 | `GroupMembership` | groupId, userId, isAdmin | |
-| `GroupItem` | groupId, title, price, coinTarget | Group gift target |
-| `GroupDonation` | groupItemId, userId, amount | Coin donation to group item |
+| `GroupItem` | groupId, title, price, coinTarget | Цель сбора монет группы |
+| `GroupDonation` | groupItemId, userId, amount | Донат монет к товару группы |
 
-### Services (Business Logic)
+### Сервисы (бизнес-логика)
 
-| Service | Responsibility |
+| Сервис | Ответственность |
 |---|---|
-| `auth.service.ts` | Password hashing, JWT generation, user lookup |
-| `wishlists.service.ts` | Visibility access control (PRIVATE / FRIENDS / PUBLIC) |
-| `items.service.ts` | Item ownership checks, status transitions |
-| `reservations.service.ts` | Reserve / cancel item reservations |
-| `contributions.service.ts` | Track guest monetary contributions |
-| `share.service.ts` | Validate share tokens, return guest-safe data |
-| `friendship.service.ts` | Check friendship status before allowing FRIENDS-visible content |
-| `wallet.service.ts` | Coin ledger operations |
-| `feed.service.ts` | Fetch friends' recent items |
-| `coinDonations.service.ts` | Deduct coins from sender, credit to item |
-| `groups.service.ts` | Group join via code, admin checks, group donations |
+| `auth.service.ts` | Хэширование паролей, генерация JWT, поиск пользователя |
+| `wishlists.service.ts` | Контроль доступа по видимости (PRIVATE / FRIENDS / PUBLIC) |
+| `items.service.ts` | Проверка владельца, переходы статусов товара |
+| `reservations.service.ts` | Резервирование / отмена резервирования |
+| `contributions.service.ts` | Учёт денежных вкладов гостей |
+| `share.service.ts` | Валидация токенов, возврат безопасных данных для гостей |
+| `friendship.service.ts` | Проверка статуса дружбы перед показом FRIENDS-контента |
+| `wallet.service.ts` | Операции с монетным реестром |
+| `feed.service.ts` | Получение последних товаров друзей |
+| `coinDonations.service.ts` | Списание монет у отправителя, зачисление к товару |
+| `groups.service.ts` | Вступление по коду, проверка прав админа, групповые донаты |
 
-### Utilities
+### Вспомогательные утилиты
 
-| File | Purpose |
+| Файл | Назначение |
 |---|---|
-| `utils/jwt.ts` | Sign and verify JWT tokens (30-day expiry) |
-| `utils/hash.ts` | bcryptjs password hash / compare |
-| `utils/shareToken.ts` | Generate unique nanoid share tokens |
+| `utils/jwt.ts` | Подпись и верификация JWT-токенов (срок 30 дней) |
+| `utils/hash.ts` | Хэширование / проверка паролей через bcryptjs |
+| `utils/shareToken.ts` | Генерация уникальных токенов через nanoid |
 
-### Key Dependencies
+### Основные зависимости
 
-| Package | Purpose |
+| Пакет | Назначение |
 |---|---|
-| express 4.21 | HTTP framework |
-| prisma 5.22 | ORM and migrations |
-| jsonwebtoken 9.0 | JWT auth |
-| bcryptjs 2.4 | Password hashing |
-| zod 3.24 | Request validation |
-| cheerio 1.0 | HTML scraping (URL metadata) |
-| express-rate-limit | Auth endpoint rate limiting |
-| nanoid | Share token generation |
-| axios | OpenRouter AI API calls |
+| express 4.21 | HTTP-фреймворк |
+| prisma 5.22 | ORM и миграции |
+| jsonwebtoken 9.0 | JWT-авторизация |
+| bcryptjs 2.4 | Хэширование паролей |
+| zod 3.24 | Валидация запросов |
+| cheerio 1.0 | Скрейпинг HTML (метаданные из URL) |
+| express-rate-limit | Ограничение запросов на auth-маршруты |
+| nanoid | Генерация токенов шаринга |
+| axios | Запросы к OpenRouter AI API |
 
 ---
 
-## Core Features
+## Ключевые функции
 
-### Authentication
-- Email/password registration and login
-- JWT Bearer tokens (30-day expiry, stored in AsyncStorage)
-- Rate limiting: 20 requests / 15 min on auth routes
-- Auto-logout on 401
+### Авторизация
+- Регистрация и вход по email/паролю
+- JWT Bearer-токены (срок 30 дней, хранятся в AsyncStorage)
+- Rate limiting: 20 запросов / 15 мин на auth-маршруты
+- Автоматический выход при 401
 
-### Wishlists & Items
-- Create wishlists with occasion type and visibility
-- Add items with title, price, URL, image, and priority level
-- Paste any URL to auto-fill item details (via Cheerio scraping)
-- Item lifecycle: `AVAILABLE → RESERVED → COLLECTING → COLLECTED`
+### Вишлисты и товары
+- Создание вишлиста с типом события и уровнем видимости
+- Добавление товаров с ценой, URL, фото и приоритетом
+- Вставка URL — автозаполнение данных товара (через Cheerio)
+- Жизненный цикл товара: `AVAILABLE → RESERVED → COLLECTING → COLLECTED`
 
-### Sharing & Guest Access
-- Each wishlist has a unique share token
-- Deep link: `wishlist://share/{token}` opens guest view
-- Guests can reserve items or contribute money without an account
+### Шаринг и гостевой доступ
+- У каждого вишлиста уникальный токен шаринга
+- Deep link: `wishlist://share/{token}` открывает гостевой экран
+- Гости могут резервировать товары или вносить деньги без аккаунта
 
-### Social
-- Send/accept/decline friend requests
-- Visibility system: FRIENDS-only wishlists visible only to mutual friends
-- Activity feed showing friends' recent wishlist items
+### Социальные функции
+- Отправка/принятие/отклонение заявок в друзья
+- Система видимости: FRIENDS-вишлисты видны только взаимным друзьям
+- Лента активности с последними товарами друзей
 
-### Wallet & Coins
-- New users receive a signup coin bonus
-- Coins can be donated to any item on any wishlist
-- Full transaction history (sent, received, donated, refunded)
+### Кошелёк и монеты
+- Новые пользователи получают монеты при регистрации
+- Монеты донатятся на любой товар любого вишлиста
+- Полная история транзакций (отправлено, получено, задоначено, возвращено)
 
-### Groups
-- Create a group, share its join code
-- Members add collective gift items with a coin target
-- All members can donate coins toward group items
+### Группы
+- Создание группы с уникальным кодом вступления
+- Участники добавляют товары с целевой суммой монет
+- Все участники могут донатить монеты на товары группы
 
-### AI Gift Advisor
-- OpenRouter API integration
-- Suggests gift ideas based on user-provided context
-- Accessible from the item creation flow
+### AI-помощник по подаркам
+- Интеграция с OpenRouter API
+- Подсказывает идеи подарков по контексту пользователя
+- Доступен из формы добавления товара
 
 ---
 
-## Environment Variables
+## Переменные окружения
 
-**Backend** (`backend/.env`):
+**Бэкенд** (`backend/.env`):
 
 ```env
 DATABASE_URL="postgresql://postgres:password@localhost:5432/wishlist"
@@ -296,20 +294,20 @@ OPENROUTER_API_KEY="sk-or-v1-..."
 
 ---
 
-## Setup
+## Установка и запуск
 
-See [SETUP.md](SETUP.md) for full developer setup instructions (prerequisites, database setup, iOS simulator).
+Подробное руководство — в [SETUP.md](SETUP.md).
 
-**Quick start:**
+**Быстрый старт:**
 
 ```bash
-# Backend
+# Бэкенд
 cd backend
 npm install
 npx prisma migrate dev
 npm run dev          # → http://localhost:3000
 
-# iOS app
+# iOS-приложение
 cd WishlistApp
 npm install
 cd ios && pod install && cd ..
@@ -319,15 +317,15 @@ npx react-native run-ios
 
 ---
 
-## Scripts
+## Скрипты
 
-**Backend (`backend/package.json`)**
+**Бэкенд (`backend/package.json`)**
 
-| Script | Action |
+| Скрипт | Действие |
 |---|---|
-| `npm run dev` | Start dev server with ts-node |
-| `npm run build` | Compile TypeScript |
-| `npm start` | Run compiled build |
-| `npm run db:migrate` | Run Prisma migrations |
-| `npm run db:generate` | Regenerate Prisma client |
-| `npm run db:studio` | Open Prisma Studio |
+| `npm run dev` | Запуск dev-сервера через ts-node |
+| `npm run build` | Компиляция TypeScript |
+| `npm start` | Запуск скомпилированной сборки |
+| `npm run db:migrate` | Применить Prisma-миграции |
+| `npm run db:generate` | Перегенерировать Prisma-клиент |
+| `npm run db:studio` | Открыть Prisma Studio |
